@@ -6,6 +6,7 @@
 </head>
 <body>
     <script type="text/javascript">
+        var cl = console.log;
         function binaryTree() {
             var node = function(key) {
                 this.key = key;
@@ -14,6 +15,7 @@
             };
             //根节点
             var root = null;
+           
             //插入结点的方法
             var insertNode = function(node, newNode) {
                 if(newNode.key < node.key) {
@@ -30,6 +32,7 @@
                     }
                 }
             };
+
             this.insert = function(key) {
                 var newNode = new node(key);
                 if(root === null) {
@@ -37,18 +40,64 @@
                 }else{
                     insertNode(root, newNode);
                 }
-                return root;
+                
             };
-           
-        }
 
-        var arr = [11,32,54,64,8,79,9];
-        var aBinaryTree = new binaryTree();
-        var a;
-        arr.forEach(function(item){
-            a=aBinaryTree.insert(item);
-        });
+            // 中序遍历<左根右>,用于升序排序
+            function inOrderTraverseNode(node, callback) {
+                if(node !== null) {
+                    inOrderTraverseNode(node.left, callback);
+                    callback(node.key);
+                    inOrderTraverseNode(node.right, callback);
+                }
+            }
+            this.inOrderTraverse = function(callback) {
+                inOrderTraverseNode(root, callback);
+            };
+
+            // 前序遍历<根左右>：用于复制二叉树，比重新构建二叉树快约10倍
+            function preorderTraverseNode(node, callback) {
+                if(node !== null) {
+                    callback(node.key);
+                    preorderTraverseNode(node.left, callback);
+                    preorderTraverseNode(node.right, callback);
+                }
+            }
+            this.preorderTraverse = function(callback) {
+                preorderTraverseNode(root, callback);
+            };
+            
+            // 后序遍历<左右根>,可用于文件系统的遍历
+            function postorderTraverseNode(node, callback) {
+                if(node !== null) {
+                    postorderTraverseNode(node.left, callback);
+                    postorderTraverseNode(node.right, callback);
+                    callback(node.key);
+                }
+            }
+            this.postorderTraverse = function(callback) {
+                postorderTraverseNode(root, callback);
+            };
+            
+        }
         
+        var arr = [7,8,2,1,0,4,9,5,3,6];
+        var aBinaryTree = new binaryTree();
+        // 创建二叉树
+        arr.forEach(function(item){
+            aBinaryTree.insert(item);
+        });
+
+        // 中序遍历
+        cl('inOrderTraverse');
+        aBinaryTree.inOrderTraverse(function(arg) {cl(arg)});
+        // 前序遍历
+        cl('preorderTraverse');
+        aBinaryTree.preorderTraverse(function(arg) {cl(arg)});
+      
+        // 后序遍历
+        cl('postorderTraverse');
+        aBinaryTree.postorderTraverse(function(e) {cl(e)});
     </script>
 </body>
 </html>
