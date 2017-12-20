@@ -32,7 +32,8 @@
                     }
                 }
             };
-
+            
+            // 插入结点
             this.insert = function(key) {
                 var newNode = new node(key);
                 if(root === null) {
@@ -40,7 +41,7 @@
                 }else{
                     insertNode(root, newNode);
                 }
-                
+                return root;
             };
 
             // 中序遍历<左根右>,用于升序排序
@@ -53,6 +54,7 @@
             }
             this.inOrderTraverse = function(callback) {
                 inOrderTraverseNode(root, callback);
+                
             };
 
             // 前序遍历<根左右>：用于复制二叉树，比重新构建二叉树快约10倍
@@ -77,27 +79,108 @@
             }
             this.postorderTraverse = function(callback) {
                 postorderTraverseNode(root, callback);
+
             };
             
+            // 查找二叉树的最小结点
+            function minNode(node) {
+                if(node) {
+                    while(node && node.left !== null) {
+                        node = node.left;
+                    }
+                    return node.key;
+                }
+                return null;
+            }
+            this.min = function() {
+                return minNode(root);
+            };
+
+            // 查找二叉树的最大结点
+            function maxNode(node) {
+                if(node) {
+                    while(node && node.right !== null) {
+                        node = node.right;
+                    }
+                    return node.key;
+                }
+                return null;
+            }
+            this.max = function() {
+                return maxNode(root);
+            }
+
+            // 查找某个值在二叉树中是否存在
+            function searchNode(node, value) {
+                if(node === null) return false;
+                if(node.key === value) return true;
+                if(value < node.key) {
+                    return searchNode(node.left, value);
+                }else{
+                    return searchNode(node.right, value);
+                }
+            }
+            this.search = function(value) {
+                
+                return searchNode(root, value);
+            };
+
+            //删除二叉树的结点
+            function removeNode(node, value) {
+                if(node === null) return null;
+                if(value < node.key) {
+                    node.left = removeNode(node.left, value);
+                }else if(value > node.key) {
+                    node.right = removeNode(node.right, value);
+                }else{
+                    if(node.left === null && node.right === null) {// 删除叶子结点
+                        node = null;
+                    }else if(node.left === null){// 删除有且仅有右子树的中间结点
+                        node = node.right;
+                    }else if(node.right === null){// 删除有且仅有左子树的中间结点
+                        node = node.left;
+                    } 
+                }
+                return node;
+            }
+            this.remove = function(value) {
+                root = removeNode(root, value)
+            }
+
+            function findMinNode(node) {// 返回最小结点
+                if(node) {
+                    while(node && node.left !== null) {
+                        node = node.left;
+                    }
+                    return node;
+                }
+                return null;
+            }
         }
         
         var arr = [7,8,2,1,0,4,9,5,3,6];
         var aBinaryTree = new binaryTree();
         // 创建二叉树
+        var tree;
         arr.forEach(function(item){
-            aBinaryTree.insert(item);
+            tree = aBinaryTree.insert(item);
         });
+        
 
-        // 中序遍历
-        cl('inOrderTraverse');
-        aBinaryTree.inOrderTraverse(function(arg) {cl(arg)});
-        // 前序遍历
-        cl('preorderTraverse');
-        aBinaryTree.preorderTraverse(function(arg) {cl(arg)});
+        // // 中序遍历
+        // cl('inOrderTraverse');
+        // aBinaryTree.inOrderTraverse(function(arg) {cl(arg)});
+        // // 前序遍历
+        // cl('preorderTraverse');
+        // aBinaryTree.preorderTraverse(function(arg) {cl(arg)});
       
-        // 后序遍历
-        cl('postorderTraverse');
-        aBinaryTree.postorderTraverse(function(e) {cl(e)});
+        // // 后序遍历
+        // cl('postorderTraverse');
+        // aBinaryTree.postorderTraverse(function(e) {cl(e)});
+        
+        // // 找最小值
+        // var a = aBinaryTree.min();
+
     </script>
 </body>
 </html>
