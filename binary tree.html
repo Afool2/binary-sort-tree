@@ -139,12 +139,17 @@
                         node = node.right;
                     }else if(node.right === null){// 删除有且仅有左子树的中间结点
                         node = node.left;
-                    } 
+                    }else{// 删除含有左右子树的结点，即删除该结点的右子树的最小结点aux，并把aux的值赋给该结点
+                        var aux = findMinNode(node.right);
+                        node.key = aux.key;
+                        node.right = removeNode(node.right, aux.key);
+                    }
+
                 }
                 return node;
             }
             this.remove = function(value) {
-                root = removeNode(root, value)
+                root = removeNode(root, value);
             }
 
             function findMinNode(node) {// 返回最小结点
