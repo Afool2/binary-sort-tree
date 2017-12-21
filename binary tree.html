@@ -2,12 +2,77 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>binary sort tree</title>
+    <title>binary sort tree game</title>
+    <style type="text/css">
+        #stage {
+            width: 300px;
+            height: 300px;
+            position: relative;
+        }
+        #background {
+            width: 300px;
+            height: 300px;
+            position: absolute;
+            top:0;
+            left:0;
+            background-image: url(images/background.png);
+        }
+
+        #cannon {
+            width: 20px;
+            height: 20px;
+            position: absolute;
+            top:270px;
+            left:140px;
+            background-image: url(images/cannon.png);
+
+        }
+        #alien {
+            width: 20px;
+            height: 20px;
+            position: absolute;
+            top:20px;
+            left: 20px;
+            background-image: url(images/alien.png);
+        }
+        #missile {
+            width: 20px;
+            height: 20px;
+            position: absolute;
+            top:270px;
+            left: 140px;
+            background-image: url(images/missile.png);
+        }
+        #explosion {
+            width: 20px;
+            height: 20px;
+            position: absolute;
+            top:20px;
+            left: 20px;
+            background-image: url(images/explosion.png);
+            display: none;
+        }
+        button {
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
+    <div id="stage">
+       <div id="background"></div>
+       <div id="cannon"></div>
+       <div id="missile"></div>
+       <div id="alien"></div>
+       <div id="explosion"></div>
+    </div><!-- <div id="stage"> -->
+    <p id="output">请输入X和Y的坐标(0~300)，然后点击fire</p>
+    <input type="text" id="inputX" placeholder="X...">
+    <input type="text" id="inputY" placeholder="Y...">
+    <button>fire!</button>
+
     <script type="text/javascript">
         var cl = console.log;
-        function binaryTree() {
+        function aBinaryTree() {
             var node = function(key) {
                 this.key = key;
                 this.left = null;
@@ -164,11 +229,11 @@
         }
         
         var arr = [7,8,2,1,0,4,9,5,3,6];
-        var aBinaryTree = new binaryTree();
+        var aBinaryTree = new aBinaryTree();
+
         // 创建二叉树
-        var tree;
         arr.forEach(function(item){
-            tree = aBinaryTree.insert(item);
+            aBinaryTree.insert(item);
         });
         
 
@@ -185,7 +250,118 @@
         
         // // 找最小值
         // var a = aBinaryTree.min();
+        
+        // 游戏
+        var alienY = 20,
+            guessX = 0,
+            guessY = 0,
+            shotsRemaning = 8,// 剩下的炮弹数量
+            shotsMade = 0,
+            gameState = '',
+            gameWon = false;
+        function $(selector) {
+            return document.querySelector(selector);
+        }
+        var cannon = $('#cannon'),
+            alien = $('#alien'),
+            missile = $('#missile'),
+            explosion = $('#explosion'),
+            inputX = $('#inputX'),
+            inputY = $('#inputY'),
+            output = $('#output'),
+            button = $('button');
+        button.addEventListener('click', clickHandler);
+        window.addEventListener('keydown', keydownHandler);   
+        
+        function clickHandler(event) {
+            if(event.key == 'Enter') { // 判断是否按下回车键
 
+                validateInput();
+            }
+        }
+
+        function keydownHandler() {
+            validateInput();
+        }
+
+        // 验证输入是否合法
+        function validateInput() {
+            
+            if(isNaN(guessX) || isNaN(guessY)) {
+                output.innerText = '请输入坐标';
+            }else if(guessX > 300 || guessY > 300){
+                output.innerText = '坐标不能大于300';
+            }else{
+                playGame();
+            }
+        }
+
+        // 游戏主函数
+        function playGame() {
+            shotsRemaning --;
+            shotsMade ++;
+            gameState = '炮弹：' + '数量' + shotsRemaning;
+            guessX = parseInt(inputX.value);
+            guessY = parseInt(inputY.value);
+            var alienNode = aBinaryTree.search(guessX);
+            if(alienNode !== null && alienNode.selected === true) {
+                if(guessY >= alienY && guessY <= alienY + 20) {
+                    gameWon = true;
+                    endGame();
+                }
+            }else {
+                output.innerText = '没有击中！' + '<br>';
+                if(shotsRemaning < 1) {
+                    endGame();
+                }
+            }
+
+            if(!gameWon) {
+                nodesForAlien[alienNodeSelect].selected = false;
+                alienNodeSelect = Math.floor(Math.random() * 9);
+                nodesForAlien[alienNodeSelect].selected = true;
+                alienX = nodesForAlien[alienNodeSelect].key;
+                alienY += 30;
+            }
+
+            render();
+
+            cl('X: ' + alienX, 'Y: ' + alienY); // 作弊
+        }
+        
+        // 渲染
+        function render() {
+            alien.style.left = alienX + 'px';
+            alien.style.top = alienY + 'px';
+            cannon.style.left = guessX + 'px';
+            missile.style.left = guessX + 'px';
+            missile.style.top = guessY + 'px';
+
+            if(gameWon) {
+                explosion.style.display = 'block';
+                explosion.style.left = alienX + 'px';
+                explosion.style.top = alienY + 'px';
+                alient.style.display = 'none';
+                missile.style.display = 'none';
+            }
+        }
+        
+        // 游戏结束
+        function endGame() {
+            if(gameWon) {
+                output.innerHTML = 'Hit! 你拯救了地球！<br> 你发射了炮弹' + shotsMade + '枚。';
+            }else{
+                output.innerHTML = '失败了！<br>地球被侵略！'
+            }
+            
+
+            // 游戏结束后禁止操作
+            button.removeEventListener('click', clickHandler);
+            button.disabled = true;
+            removeEventListener('keydown', keydownHandler);
+            inputX.disabled = true;
+            inputY.disabled = true;
+        }
     </script>
 </body>
 </html>
