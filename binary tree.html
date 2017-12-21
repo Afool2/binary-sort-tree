@@ -24,7 +24,7 @@
             position: absolute;
             top:270px;
             left:140px;
-            background-image: url(images/cannon.png);
+            background: url(images/cannon.png) no-repeat center;
 
         }
         #alien {
@@ -69,10 +69,11 @@
     <input type="text" id="inputX" placeholder="X...">
     <input type="text" id="inputY" placeholder="Y...">
     <button>fire!</button>
+    <input type="button" id="restart" value="restart">
 
     <script type="text/javascript">
         var cl = console.log;
-        function aBinaryTree() {
+        function BinaryTree() {
             var node = function(key) {
                 this.key = key;
                 this.left = null;
@@ -119,19 +120,20 @@
             }
             this.inOrderTraverse = function(callback) {
                 inOrderTraverseNode(root, callback);
-                
+               
             };
 
             // 前序遍历<根左右>：用于复制二叉树，比重新构建二叉树快约10倍
             function preorderTraverseNode(node, callback) {
                 if(node !== null) {
-                    callback(node.key);
+                    callback(node);
                     preorderTraverseNode(node.left, callback);
                     preorderTraverseNode(node.right, callback);
                 }
             }
             this.preorderTraverse = function(callback) {
                 preorderTraverseNode(root, callback);
+                 
             };
             
             // 后序遍历<左右根>,可用于文件系统的遍历
@@ -139,7 +141,7 @@
                 if(node !== null) {
                     postorderTraverseNode(node.left, callback);
                     postorderTraverseNode(node.right, callback);
-                    callback(node.key);
+                    callback(node);
                 }
             }
             this.postorderTraverse = function(callback) {
@@ -228,13 +230,13 @@
             }
         }
         
-        var arr = [7,8,2,1,0,4,9,5,3,6];
-        var aBinaryTree = new aBinaryTree();
+        // var arr = [7,8,2,1,0,4,9,5,3,6];
+        // var aBinaryTree = new BinaryTree();
 
-        // 创建二叉树
-        arr.forEach(function(item){
-            aBinaryTree.insert(item);
-        });
+        // // 创建二叉树
+        // arr.forEach(function(item){
+        //     aBinaryTree.insert(item);
+        // });
         
 
         // // 中序遍历
@@ -252,7 +254,23 @@
         // var a = aBinaryTree.min();
         
         // 游戏
-        var alienY = 20,
+        var nodes = [];
+        for(var i = 0; i < 10; i ++) {
+            nodes.push(Math.floor(Math.random() * 281));
+        }
+        var aBinaryTree = new BinaryTree();
+        nodes.forEach(function(item) {
+            aBinaryTree.insert(item);
+        })
+        var nodesForAlien = [];
+        function callback(node) {
+            nodesForAlien.push(node);
+        }
+        aBinaryTree.preorderTraverse(callback);
+        var alienNodeSelect = Math.floor(Math.random() * 9);
+        nodesForAlien[alienNodeSelect].selected = true;
+        var alienX = nodesForAlien[alienNodeSelect].key,
+            alienY = 20,
             guessX = 0,
             guessY = 0,
             shotsRemaning = 8,// 剩下的炮弹数量
@@ -269,24 +287,23 @@
             inputX = $('#inputX'),
             inputY = $('#inputY'),
             output = $('#output'),
-            button = $('button');
+            button = $('button'),
+            restart =$('#restart');
         button.addEventListener('click', clickHandler);
         window.addEventListener('keydown', keydownHandler);   
         
         function clickHandler(event) {
-            if(event.key == 'Enter') { // 判断是否按下回车键
+            validateInput();
+        }
 
+        function keydownHandler() {
+            if(event.key == 'Enter') { // 判断是否按下回车键
                 validateInput();
             }
         }
 
-        function keydownHandler() {
-            validateInput();
-        }
-
         // 验证输入是否合法
         function validateInput() {
-            
             if(isNaN(guessX) || isNaN(guessY)) {
                 output.innerText = '请输入坐标';
             }else if(guessX > 300 || guessY > 300){
@@ -300,17 +317,17 @@
         function playGame() {
             shotsRemaning --;
             shotsMade ++;
-            gameState = '炮弹：' + '数量' + shotsRemaning;
+            gameState = '炮弹数量：' + shotsRemaning;
             guessX = parseInt(inputX.value);
             guessY = parseInt(inputY.value);
             var alienNode = aBinaryTree.search(guessX);
-            if(alienNode !== null && alienNode.selected === true) {
+            if(alienNode !== null && alienNode == true) {
                 if(guessY >= alienY && guessY <= alienY + 20) {
                     gameWon = true;
                     endGame();
                 }
             }else {
-                output.innerText = '没有击中！' + '<br>';
+                output.innerHTML = '没有击中！<br>' + gameState;
                 if(shotsRemaning < 1) {
                     endGame();
                 }
@@ -341,7 +358,7 @@
                 explosion.style.display = 'block';
                 explosion.style.left = alienX + 'px';
                 explosion.style.top = alienY + 'px';
-                alient.style.display = 'none';
+                alien.style.display = 'none';
                 missile.style.display = 'none';
             }
         }
@@ -362,6 +379,11 @@
             inputX.disabled = true;
             inputY.disabled = true;
         }
+
+        // 重启游戏
+        restart.addEventListener('click', function() {
+            location.reload();
+        });
     </script>
 </body>
 </html>
